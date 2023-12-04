@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jogo Multiplayer - Pedra, Papel e Tesoura</title>
+  <style>
+    .notificacao {
+      position: fixed;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 15px;
+      border-radius: 5px;
+      box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    }
+  </style>
+</head>
+<body>
+  <h1>Jogo Multiplayer - Pedra, Papel e Tesoura</h1>
+  <p>Abra esta página em dois navegadores diferentes para jogar.</p>
+  
+  <!-- Botões para escolhas -->
+  <button onclick="fazerEscolha('pedra')">Pedra</button>
+  <button onclick="fazerEscolha('papel')">Papel</button>
+  <button onclick="fazerEscolha('tesoura')">Tesoura</button>
+
+  <!-- Local para exibir o resultado -->
+  <div id="resultado"></div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+  <script>
+    const socket = io();
+
+    // Função para criar um elemento de notificação
+    const criarNotificacao = (mensagem, cor) => {
+      const notificacao = document.createElement('div');
+      notificacao.className = 'notificacao';
+      notificacao.textContent = mensagem;
+
+      // Adiciona a notificação ao corpo do documento
+      document.body.appendChild(notificacao);
+
+      // Adiciona estilos diretamente com base na informação da cor
+      notificacao.style.backgroundColor = cor;
+      notificacao.style.color = 'white';
+
+      // Remove a notificação após alguns segundos
+      setTimeout(() => {
+        notificacao.remove();
+      }, 3000); // Remove a notificação após 3 segundos
+    };
+
+    // Função para enviar a escolha para o servidor
+    const fazerEscolha = (escolha) => {
+      socket.emit('escolha', escolha);
+    };
+
+    // Lidar com o resultado recebido do servidor
+    socket.on('resultado', ({ resultado, cor }) => {
+      console.log('Resultado recebido:', resultado);
+
+      // Exibir o resultado na tela usando uma notificação
+      criarNotificacao(resultado, cor);
+    });
+
+    // Adicionar um manipulador para o evento de desconexão (opcional)
+    socket.on('disconnect', () => {
+      console.log('Você foi desconectado do servidor');
+    });
+  </script>
+</body>
+</html>
